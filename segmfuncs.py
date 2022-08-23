@@ -8,14 +8,12 @@ def segm_watershed(wFA_ms, eigenvects_ms, gaussian_sigma=0.5):
 
     import numpy as np
     from scipy import ndimage 
-
     import siamxt
     from libcc.preprocess import run_analysis, grad_morf
     from libcc.gets import getTheCC
     from skimage.morphology import disk, square, erosion, dilation
     from skimage.segmentation import watershed
     from skimage.measure import label, regionprops	
-
 
     ## MORPHOLOGICAL GRADIENT
 
@@ -29,7 +27,6 @@ def segm_watershed(wFA_ms, eigenvects_ms, gaussian_sigma=0.5):
 
     # Gradient
     grad_wFA = grad_morf(wFA_gauss, se1)
-
 
     ## MAX-TREE
 
@@ -52,12 +49,11 @@ def segm_watershed(wFA_ms, eigenvects_ms, gaussian_sigma=0.5):
         counter+=1
            
 
-
     ## SEGMENTING CC
 
     # Watershed    
     wc_wfa = watershed(grad_wFA, segm_markers)
-        
+    
     # Thresholding regions by FA
     seg_wFA = np.zeros((wFA_ms).shape).astype(bool)
     segs = seg_wFA
@@ -69,7 +65,6 @@ def segm_watershed(wFA_ms, eigenvects_ms, gaussian_sigma=0.5):
 
     # Getting the CC
     seg_wFA, ymed, xmed = getTheCC(seg_wFA)
-
     return seg_wFA
 
 

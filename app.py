@@ -165,11 +165,13 @@ dict_removed_subjects = {}
 dict_scalar_outliers = {}
 
 # Segment and get info
-
+print(dict_segmentation_methods.keys())
 for subject_path in tqdm(path_dict.values()):
     
     for segmentation_method in dict_segmentation_methods.keys():    
         
+        print(f'Fazendo para {segmentation_method}')
+
         if segmentation_method not in dict_scalar_statistics.keys(): 
             dict_segmentation_masks[segmentation_method] = {}
             dict_scalar_maps[segmentation_method] = {}
@@ -187,6 +189,8 @@ for subject_path in tqdm(path_dict.values()):
         filename = 'segm_' + dict_segmentation_methods[segmentation_method] + '_data.npy'
         subject_name = os.path.basename(os.path.dirname(subject_path))
 
+        print(f'Executado para {segmentation_method}')
+
         # Process/Load data
         if segmentation_method == 'Imported Masks':
             if ccprocess.check_mask(subject_path, mask_basename) is False:
@@ -199,6 +203,7 @@ for subject_path in tqdm(path_dict.values()):
                                        opts.basename,
                                        mask_basename)
 
+        print(f'Tupla de {segmentation_method} adquirida.')
 
         if data_tuple is None:
             continue
@@ -222,7 +227,7 @@ for subject_path in tqdm(path_dict.values()):
         dict_error_prob[segmentation_method][subject_name] = error_prob
         dict_parcellations_masks[segmentation_method][subject_name] = parcellations_masks
         dict_thickness[segmentation_method][subject_name] = thick
-        
+
         # Save array with subject keys
         loaded_subjects.append(subject_name)
     
@@ -235,15 +240,20 @@ for segmentation_method in dict_segmentation_methods.keys():
     dict_scalar_statistics[segmentation_method] = pd.DataFrame.from_dict(dict_scalar_statistics[segmentation_method], 
                                                                          orient='index', 
                                                                          columns=scalar_statistics_names)
+
     dict_scalar_midlines[segmentation_method] = pd.DataFrame.from_dict(dict_scalar_midlines[segmentation_method], 
                                                                        orient='index')
     dict_thickness[segmentation_method] = pd.DataFrame.from_dict(dict_thickness[segmentation_method],
                                                                  orient='index')
-    dict_error_prob[segmentation_method] = pd.DataFrame.from_dict(dict_error_prob[segmentation_method], columns=['error_prob'], orient='index')
-    
-    dict_parcellations_statistics[segmentation_method] = inputfuncs.parcellations_dfs_dicts(dict_scalar_maps[segmentation_method], dict_parcellations_masks[segmentation_method], segmentation_method)
 
+    dict_parcellations_statistics[segmentation_method] = inputfuncs.parcellations_dfs_dicts(dict_scalar_maps[segmentation_method], dict_parcellations_masks[segmentation_method], segmentation_method)
+    
+    try:
+        dict_error_prob[segmentation_method] = pd.DataFrame.from_dict(dict_error_prob[segmentation_method], columns=['error_prob'], orient='index')
+    except:
+        dict_error_prob[segmentation_method] = pd.DataFrame({"error_prob": []})
     # Get FA and/or other scalars ouliers
+
     for scalar in ['FA']:
         df = dict_scalar_statistics[segmentation_method][scalar]
         outliers = df[~df.between(df.quantile(.1), df.quantile(.9))].index
@@ -426,7 +436,7 @@ def build_segm_scatterplot(mode='Method', segmentation_method = 'ROQS', scalar_x
     df = df.drop(dict_removed_subjects[segmentation_method])
     df = df.dropna(axis=0)
 
-    print(df)
+    # print(df) AQUI TEMOS OS VALORES DO FA, MD, RD, AD 
 
     fig = px.scatter(df, 
                     x=scalar_x, 

@@ -20,19 +20,16 @@ def segment(subject_path, segmentation_method, segmentation_methods_dict, parcel
 	folderpath = subject_path + 'inCCsight/'
 	segmname = 'segm_' + name_dict[segmentation_method]
 	filename = segmname + '_data.npy'
-
-	# Check if segmentation has already been done
+	# Check if segmentation has already been done	
 	if os.path.exists(folderpath + filename):
 
 		# Load files
 		data_tuple = np.load(folderpath+filename, allow_pickle=True)
-
 	# If there is no data available, segment
 	else:
 
 		# Read data, get scalar maps and eigs.
 		wFA_v, FA_v, MD_v, RD_v, AD_v, fissure, eigvals, eigvects, affine = libcc.run_analysis(subject_path, basename)
-		
 		wFA = wFA_v[fissure,:,:]
 		FA = FA_v[fissure,:,:]
 		MD = MD_v[fissure,:,:]
@@ -68,7 +65,9 @@ def segment(subject_path, segmentation_method, segmentation_methods_dict, parcel
 					RD = RD_v[:,:,fissure]
 					AD = AD_v[:,:,fissure]
 			else:
+				print('entrando')
 				segmentation = segmentation_methods_dict[segmentation_method](wFA, eigvects_ms)
+				print('saindo')
 		except:
 			print('> Segmentation failed for subject {} with segmentation method {}'.format(os.path.basename(os.path.dirname(subject_path)), segmentation_method))
 			return None

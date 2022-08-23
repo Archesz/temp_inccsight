@@ -5,7 +5,7 @@ def getTheCC(segmentation):
     import numpy as np
     from skimage.measure import label, regionprops
 
-    labels = label(segmentation, neighbors=4)
+    labels = label(input=segmentation, neighbors=4)
     regions = regionprops(labels)
 
     theCC = []
